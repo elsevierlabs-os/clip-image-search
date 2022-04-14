@@ -1,0 +1,28 @@
+#### begin streamlit app ####
+
+	location /clip-demo {
+		location ^~ /clip-demo/healthz {
+			proxy_pass http://127.0.0.1:8501/healthz;
+		}
+		location /clip-demo/stream {
+			proxy_pass http://127.0.0.1:8501/stream;
+			proxy_http_version 1.1;
+			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+			proxy_set_header Host $host;
+			proxy_set_header Upgrade $http_upgrade;
+			proxy_set_header Connection "upgrade";
+			proxy_read_timeout 86400;
+		}
+		location /clip-demo/media {
+			proxy_pass http://127.0.0.1:8501/media;
+		}
+		proxy_pass http://127.0.0.1:8501/;
+	}
+	location ^~ /static {
+		proxy_pass http://127.0.0.1:8501/static/;
+	}
+	location ^~ /vendor {
+		proxy_pass http://127.0.0.1:8501/vendor;
+	}
+
+#### end streamlit app ####

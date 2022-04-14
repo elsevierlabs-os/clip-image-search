@@ -1,0 +1,13 @@
+[Unit]
+Description=StreamlitService
+After=vespa.service
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/labs-clip-imageclef/demo
+ExecStart=/home/ubuntu/labs-clip-imageclef/demo/start-streamlit.sh
+
+[Install]
+WantedBy=multi-user.target
+

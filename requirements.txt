@@ -1,0 +1,7 @@
+ftfy
+pyperclip
+spacy
+streamlit
+torch
+torchvision
+transformers
