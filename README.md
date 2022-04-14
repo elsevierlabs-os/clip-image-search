@@ -2,24 +2,23 @@
 
 Fine-tuning OpenAI CLIP Model for Image Search on medical images
 
-* clip-image-search
-  * [Motivation](#motivation)
-  * [Applications](#applications)
-  * [References / Previous Work](#references--previous-work)
-  * [Fine Tuning](#fine-tuning)
-    * [Environment](#environment)
-    * [Data Preparation](#data-preparation)
-    * [Training Hyperparameters](#training-hyperparameters)
-    * [Outputs](#outputs)
-    * [Evaluation](#evaluation)
-  * [Image Search](#image-search)
-    * [Environment](#environment-1)
-    * [Vespa](#vespa)
-    * [Streamlit](#streamlit)
-    * [Automatic Startup and Shutdown](#automatic-startup-and-shutdown)
-      * [Vespa](#vespa-1)
-      * [Streamlit](#streamlit-1)
-      * [Ngnix](#nginx)
+* [Motivation](#motivation)
+* [Applications](#applications)
+* [References / Previous Work](#references--previous-work)
+* [Fine Tuning](#fine-tuning)
+  * [Environment](#environment)
+  * [Data Preparation](#data-preparation)
+  * [Training Hyperparameters](#training-hyperparameters)
+  * [Outputs](#outputs)
+  * [Evaluation](#evaluation)
+* [Image Search](#image-search)
+  * [Environment](#environment-1)
+  * [Vespa](#vespa)
+  * [Streamlit](#streamlit)
+  * [Automatic Startup and Shutdown](#automatic-startup-and-shutdown)
+    * [Vespa](#vespa-1)
+    * [Streamlit](#streamlit-1)
+    * [Ngnix](#nginx)
 
 
 ## Motivation
