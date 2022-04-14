@@ -2,6 +2,26 @@
 
 Fine-tuning OpenAI CLIP Model for Image Search on medical images
 
+* clip-image-search
+  * [Motivation](#motivation)
+  * [Applications](#applications)
+  * [References / Previous Work](#references--previous-work)
+  * [Fine Tuning](#fine-tuning)
+    * [Environment](#environment)
+    * [Data Preparation](#data-preparation)
+    * [Training Hyperparameters](#training-hyperparameters)
+    * [Outputs](#outputs)
+    * [Evaluation](#evaluation)
+  * [Image Search](#image-search)
+    * [Environment](#environment-1)
+    * [Vespa](#vespa)
+    * [Streamlit](#streamlit)
+    * [Automatic Startup and Shutdown](#automatic-startup-and-shutdown)
+      * [Vespa](#vespa-1)
+      * [Streamlit](#streamlit-1)
+      * [Ngnix](#nginx)
+
+
 ## Motivation
 
 * Model based image search (i.e. using machine learning based models trained on image similarity rather than traditional Lucene based search on captions)
@@ -10,7 +30,7 @@ Fine-tuning OpenAI CLIP Model for Image Search on medical images
   * we have lots of captioned images in our collection, so many (image, caption) pairs available "in the wild"
 * This project is **not** about caption prediction, rather it exploring the feasibility of text-to-image image search, whereby the user enters a text string to bring up the most appropriate images for the text string.
 
-## Possible Applications to business
+## Applications
 
 * Image search for internal users to get editorial efficiencies
 * Image search for customers
