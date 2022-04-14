@@ -1,0 +1,14 @@
+[Unit]
+Description=VespaService
+After=docker.service
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/vespa-poc/bash-scripts
+ExecStart=/home/ubuntu/vespa-poc/bash-scripts/start.sh
+ExecStop=/home/ubuntu/vespa-poc/bash-scripts/stop.sh
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,48 @@
+schema image {
+    document image {
+        field image_id type string {
+            indexing: summary | attribute
+        }
+        field image_path type string {
+            indexing: summary | attribute
+        }
+        field caption_text type string {
+            indexing: summary | index
+            index: enable-bm25
+        }
+        field clip_vector type tensor<float>(x[512]) {
+            indexing: attribute | index
+            attribute {
+                distance-metric: innerproduct
+            }
+            index {
+                hnsw {
+                    max-links-per-node: 32
+                    neighbors-to-explore-at-insert: 500
+                }
+            }
+        }
+    }
+
+    fieldset default {
+        fields: image_id, image_path, caption_text, clip_vector
+    }
+
+    rank-profile caption-search inherits default {
+        first-phase {
+            expression: bm25(caption_text)
+        }
+    }
+
+    rank-profile image-search inherits default {
+        first-phase {
+            expression: closeness(field, clip_vector)
+        }
+    }
+
+    rank-profile combined-search inherits default {
+        first-phase {
+            expression: bm25(caption_text) + closeness(clip_vector)
+        }
+    }
+}
