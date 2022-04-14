@@ -9,16 +9,11 @@ Fine-tuning OpenAI CLIP Model for Image Search on medical images
   * [Environment](#environment)
   * [Data Preparation](#data-preparation)
   * [Training Hyperparameters](#training-hyperparameters)
-  * [Outputs](#outputs)
   * [Evaluation](#evaluation)
 * [Image Search](#image-search)
   * [Environment](#environment-1)
   * [Vespa](#vespa)
   * [Streamlit](#streamlit)
-  * [Automatic Startup and Shutdown](#automatic-startup-and-shutdown)
-    * [Vespa](#vespa-1)
-    * [Streamlit](#streamlit-1)
-    * [Ngnix](#nginx)
 
 
 ## Motivation
@@ -69,14 +64,38 @@ Fine-tuning OpenAI CLIP Model for Image Search on medical images
 
 ### Data Preparation
 
-* Data for task originally provided via the [ImageCLEF 2017 Caption Prediction task](https://www.imageclef.org/2017/caption).
-* Input data located at [s3://els-corpora/ImageCLEF/ImageCLEF2017/Caption/CaptionPrediction](https://s3.console.aws.amazon.com/s3/buckets/els-corpora?region=us-east-1&prefix=ImageCLEF/ImageCLEF2017/Caption/CaptionPrediction/&showversions=false).
-* Download using following command:
+* Data for task originally sourced from the [ImageCLEF 2017 Caption Prediction task](https://www.imageclef.org/2017/caption).
+* Once downloaded, the dataset is exploded and results in the folder structure as shown below. Essentially, three subfolders, one each for `training`, `test` and `validation` data. Since the dataset is for caption prediction, the `test` folder does not contain any captions. The `train` and `validation` folders contains a CSV file of image file names and captions, and all the three folders contain a nested sub-folder containing the images corresponding to each split.
+
 ```
-$ mkdir ImageCLEF2017-CaptionPrediction
-$ cd ImageCLEF2017-CaptionPrediction
-$ aws s3 cp --recursive s3://els-corpora/ImageCLEF/ImageCLEF2017/Caption/CaptionPrediction .
+$ mkdir -p ImageCLEF2017-CaptionPrediction; cd ImageCLEF2017-CaptionPrediction
+$ tree .
+|
+*-- test/
+|   |
+|   +-- CaptionPredictionTesting2017-List.txt
+|   +-- CaptionPredictionTesting2017/
+|       |
+|       +-- test-image-1.jpg
+|       +-- ... 9,999 more ...
+|    
++-- training
+|   |
+|   +-- CaptionPredictionTraining2017-Captions.csv
+|   +-- CaptionPredictionTraining2017/
+|       |
+|       +-- training-image-1.jpg
+|       +-- ... 164,613 more ...
+|    
++-- validation
+    |
+    +-- CaptionPredictionValidation2017-Captions.csv
+    +-- ConceptDetectionValidation2017/
+        |
+        +-- validation-image-1.jpg
+        +-- ... 9,999 more ...
 ```
+
 * Dataset contains following splits
   * training: 164,614 images + captions
   * validtion: 10,000 images + captions
@@ -99,25 +118,15 @@ $ aws s3 cp --recursive s3://els-corpora/ImageCLEF/ImageCLEF2017/Caption/Caption
   * number of epochs: 10
   * number of training samples: 50,000
 * We note that loss continues to drop so it is likely that further training or with larger amounts of data will increase performance. However, the flattening of the validation curve shows that we are in an area of diminishing returns.
-  * <img src="images/lossplot_5.png"/>
+  * <img src="figures/lossplot_5.png"/>
 * We considered doing image and text augmentation but dropped the idea since training set size is quite large (148k+ images+captions) and we achieve regularization through random sampling a subset of this dataset.
-
-
-### Outputs
-
-* Best model (run 5, ckpt 10) - [s3://els-ats/sujit/clip-imageclef/models/clip-imageclef-run5-ckpt10](https://s3.console.aws.amazon.com/s3/buckets/els-ats?region=us-east-1&prefix=sujit/clip-imageclef/models/&showversions=false)
-* Vectors generated from best model
-  * for test set images - [s3://els-ats/sujit/clip-imageclef/vectors/vectors-5.10.tsv](https://s3.console.aws.amazon.com/s3/object/els-ats?region=us-east-1&prefix=sujit/clip-imageclef/vectors/vectors-5.10.tsv)
-  * for unseen (original test set) images - [s3://els-ats/sujit/clip-imageclef/vectors/vectors-unseen-5.10.tsv](https://s3.console.aws.amazon.com/s3/object/els-ats?region=us-east-1&prefix=sujit/clip-imageclef/vectors/vectors-unseen-5.10.tsv)
-  * for validation images - [s3://els-ats/sujit/clip-imageclef/vectors/vectors-val-5.10.tsv](https://s3.console.aws.amazon.com/s3/object/els-ats?region=us-east-1&prefix=sujit/clip-imageclef/vectors/vectors-val-5.10.tsv)
-  * for training images - [s3://els-ats/sujit/clip-imageclef/vectors/vectors-train-5.10.tsv](https://s3.console.aws.amazon.com/s3/object/els-ats?region=us-east-1&prefix=sujit/clip-imageclef/vectors/vectors-train-5.10.tsv)
 
 
 ### Evaluation
 
 * We feed in batches of (caption-image) pairs
 * Evaluation metrics based on the intuition illustrated by heatmap, i.e. labels for each batch are along the diagonal
-  * <img src="images/eval_heatmap.png"/>
+  * <img src="figures/eval_heatmap.png"/>
 * We compute MRR@k (Mean Reciprocal Rank) for k=1, 3, 5, 10, 20 for image-caption similarity
 * Formula for [Mean Reciprocal Rank](https://en.wikipedia.org/wiki/Mean_reciprocal_rank)
 * Bounding it by k just means that we will only score a caption if it appears in the most likely captions for the image.
@@ -132,9 +141,11 @@ $ aws s3 cp --recursive s3://els-corpora/ImageCLEF/ImageCLEF2017/Caption/Caption
 | [run-5](src/train_configs/run5.cfg) | **0.80200** | **0.87170** | **0.87743** | **0.87966** | **0.88002** |
 
 
+---
+
 ## Image Search
 
-The demo is on a standalone CPU-only box since we are only doing inference. The corpus of images + captions used is the combination of the training, validation, and unseen test sets provided by ImageCLEF 2017 Caption Prediction challenge. The captions and image vectors are hosted on the Vespa search engine, which provides both BM25 based text search services and HNSW and Cosine similarity based Approximate Nearest Neighbor services.
+The Image Search demo is located on a standalone CPU-only box since we are only doing inference. The corpus of images + captions used is the combination of the training, validation, and unseen test sets provided by ImageCLEF 2017 Caption Prediction challenge. The captions and image vectors are hosted on the Vespa search engine, which provides both BM25 based text search services and HNSW and Cosine similarity based Approximate Nearest Neighbor services.
 
 ### Environment
 
@@ -163,11 +174,28 @@ The demo is on a standalone CPU-only box since we are only doing inference. The 
     * `deploy.sh` to deploy `clip-demo` to Vespa
     * `status.sh` to verify Vespa status
   * Prepare data
-    * Images -- `mkdir CaptionPrediction; aws s3 cp --recursive s3://els-corpora/ImageCLEF/ImageCLEF2017/Caption/CaptionPrediction .`
-      * unzip image collectiosn under `training`, `validation`, `test`
-    * Vectors -- `cd CaptionPrediction; aws s3 cp --recursive s3://els-ats/sujit/clip-imageclef/vectors .`
-    * Models -- `mkdir clip-model; cd clip-model; aws s3 cp --recursive s3://els-ats/sujit/clip-imageclef/models .`
-  * Load data -- run [01-load-index.py](vespa/01-load-index.py)
+    * Images -- Download ImageCLEF dataset and explode as described in the Fine Tuning section.
+      ```
+      $ mkdir CaptionPrediction; cd CaptionPrediction
+      $ unzip folder structure
+      ```
+
+    * Models -- copy over the folder corresponding to the fine-tuned CLIP model from fine-tuning step that contains the `pytorch_model.bin` file.
+
+    * Vectors -- use fine-tuned model to generate image vectors.
+
+      ```
+      $ cd fine-tuning
+      $ python vectorize-images --model_path /path/to/fine-tuned/pytorch_model.bin \
+          --output-dir /path/to/folder/containing/vector/files/
+      ```
+
+  * Load data -- run `load-vespa-index.py`
+```
+$ cd image-search
+$ python load-vespa-index.py --image_dir /path/to/CaptionPrediction/folder \
+    --vector_dir /path/to/folder/containing/vector/files/
+```
 
 ### Streamlit
 
@@ -181,47 +209,12 @@ The demo is on a standalone CPU-only box since we are only doing inference. The 
     * image only -- use consine similarity between the query image vector and vectors for images in the corpus
     * image + text -- use hybrid text + vector search, computing relevance as a linear interpolation of cosine similarity between image vectors and BM25 similarity between source image caption and target image captions.
 
-* To run streamlit server: 
-  * `streamlit run app.py` on server
-  * open tunnel for port 8501 to localhost: `ssh CLIPDemo -L 8501:localhost:8501`
-  * bring up demo on local browser: `http://localhost:8501`
+* To run streamlit server, run following command, application will start listening on port 8501.
 
-### Automatic Startup and Shutdown
-
-Ideally, one should be able to switch the machine on in EC2, and the services should just start up by themselves, and vice-versa when the machine is swtiched off. While the machine is switched on, a user should be able to access the Demo at [http://10.169.23.142/clip-demo](http://10.169.23.142/clip-demo) as long as they are inside the Elsevier VPN.
-
-This requires the following services to be turned on and off automatically.
-
-#### Vespa
-
-To install, run the following commands (note: this depends on the [vespa-poc](https://github.com/sujitpal/vespa-poc), specifically the `bash-scripts` folder.
-
-* `cd $HOME`
-* `git clone https://github.com/sujitpal/vespa-poc.git`
-* `cd $PROJECT_ROOT/vespa`
-* `sudo cp vespa.service /etc/systemd/system/`
-* `sudo systemctl start vespa`
-* `sudo systemctl enable vespa`
-
-#### Streamlit
-
-To install, run the following commands.
-
-* `cd $PROJECT_ROOT/demo`
-* `sudo cp streamlit.service /etc/systemd/system/`
-* `sudo systemctl start streamlit`
-* `sudo systemctl enable streamlit`
-
-#### Ngnix
-
-We need to install Nginx and enable reverse-proxy for streamlit so it is generally accessible within the Elsevier AWS VPN.
-
-* Needs `HTTP over DC` security group to be enabled.
-* `cd $PROJECT_ROOT/demo`
-* Copy the snippet inside `streamlit.nginx` inside the server block of `/etc/nginx/sites-enabled/default`
-* `sudo nginx -t`
-* `sudo systemctl start nginx`
-* Streamlit app should be accessible at `http://${PRIVATE_IP_ADDRESS}/clip-demo`
+```
+  $ cd image-search
+  $ streamlit run app.py
+```
 
 
 

@@ -72,7 +72,7 @@ class ImageCaptionCollator(object):
 # from transformers import CLIPProcessor, CLIPModel
 # from torch.utils.data import DataLoader
 
-# DATA_DIR = "../../ImageCLEF2017-CaptionPrediction"
+# DATA_DIR = "../ImageCLEF2017-CaptionPrediction"
 
 # model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
 # processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")

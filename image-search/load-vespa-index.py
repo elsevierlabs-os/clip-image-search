@@ -1,22 +1,30 @@
+import argparse
 import os
 import numpy as np
 import requests
 
-DATA_DIR = "/home/ubuntu/CaptionPrediction"
+# DATA_DIR = "/home/ubuntu/CaptionPrediction"
 DATA_SUBDIRS = ["training", "validation", "test"]
 
 APP_NAME = "clip-demo"
 SCHEMA_NAME = "image"
 ENDPOINT = "http://localhost:8080/document/v1/{:s}/{:s}/docid/{:d}"
 
+
+parser = argparse.ArgumentParser()
+parser.add_argument("image_dir", help="path to folder containing training, validation and test images and captions")
+parser.add_argument("vector_dir", help="path to folder containing vector TSV files")
+args = parser.parse_args()
+
+
 # scan directories and compose paths
 image_paths = {}
 for data_subdir in DATA_SUBDIRS:
-    for image_folder_cand in os.listdir(os.path.join(DATA_DIR, data_subdir)):
+    for image_folder_cand in os.listdir(os.path.join(args.image_dir, data_subdir)):
         # print(data_subdir, subdir_content)
-        if os.path.isdir(os.path.join(DATA_DIR, data_subdir, image_folder_cand)):
-            for image_file in os.listdir(os.path.join(DATA_DIR, data_subdir, image_folder_cand)):
-                image_path = os.path.join(DATA_DIR, data_subdir, image_folder_cand, image_file)
+        if os.path.isdir(os.path.join(args.image_dir, data_subdir, image_folder_cand)):
+            for image_file in os.listdir(os.path.join(args.image_dir, data_subdir, image_folder_cand)):
+                image_path = os.path.join(args.image_dir, data_subdir, image_folder_cand, image_file)
                 image_id = image_file.replace(".jpg", "")
                 # if image_id in image_paths:
                 #     print("duplicate image:", image_file)
@@ -26,9 +34,9 @@ print("# of image paths:", len(image_paths))
 
 image_captions = {}
 for data_subdir in DATA_SUBDIRS:
-    for image_folder_cand in os.listdir(os.path.join(DATA_DIR, data_subdir)):
+    for image_folder_cand in os.listdir(os.path.join(args.image_dir, data_subdir)):
         if image_folder_cand.find("-Captions") > -1:
-            with open(os.path.join(DATA_DIR, data_subdir, image_folder_cand), "r") as f:
+            with open(os.path.join(args.image_dir, data_subdir, image_folder_cand), "r") as f:
                 for line in f:
                     image_id, caption = line.strip().split('\t')
                     image_captions[image_id] = caption                
@@ -39,9 +47,9 @@ print("# of image captions:", len(image_captions))
 doc_id = 1
 failures, successes = 0, 0
 headers = { "Content-Type": "application/json" }
-for vec_file_cand in os.listdir(DATA_DIR):
-    if vec_file_cand.startswith("vectors"):
-        with open(os.path.join(DATA_DIR, vec_file_cand), "r") as f:
+for vec_file_cand in os.listdir(args.vector_dir):
+    if vec_file_cand.startswith("vectors-"):
+        with open(os.path.join(args.vector_dir, vec_file_cand), "r") as f:
             for line in f:
                 image_id, vec_str = line.strip().split('\t')
                 vec = np.array([float(x) for x in vec_str.split(',')])
