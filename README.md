@@ -79,7 +79,7 @@ $ tree .
 |       +-- test-image-1.jpg
 |       +-- ... 9,999 more ...
 |    
-+-- training
++-- training/
 |   |
 |   +-- CaptionPredictionTraining2017-Captions.csv
 |   +-- CaptionPredictionTraining2017/
@@ -87,7 +87,7 @@ $ tree .
 |       +-- training-image-1.jpg
 |       +-- ... 164,613 more ...
 |    
-+-- validation
++-- validation/
     |
     +-- CaptionPredictionValidation2017-Captions.csv
     +-- ConceptDetectionValidation2017/
@@ -120,6 +120,7 @@ $ tree .
 * We note that loss continues to drop so it is likely that further training or with larger amounts of data will increase performance. However, the flattening of the validation curve shows that we are in an area of diminishing returns.
   * <img src="figures/lossplot_5.png"/>
 * We considered doing image and text augmentation but dropped the idea since training set size is quite large (148k+ images+captions) and we achieve regularization through random sampling a subset of this dataset.
+* Table showing evaluation results tests 5 different hyperparameter configurations.
 
 
 ### Evaluation
@@ -134,11 +135,11 @@ $ tree .
 | Experiment                          | k=1     | k=3     | k=5     | k=10    | k=20    |
 |-------------------------------------|---------|---------|---------|---------|---------|
 | baseline                            | 0.42580 | 0.53402 | 0.55837 | 0.57349 | 0.57829 |
-| [run-1](src/train_configs/run1.cfg) | 0.69130 | 0.78962 | 0.80113 | 0.80517 | 0.80589 |
-| [run-2](src/train_configs/run2.cfg) | 0.71200 | 0.80445 | 0.81519 | 0.81912 | 0.81968 |
-| [run-3](src/train_configs/run3.cfg) | 0.34540 | 0.46338 | 0.49253 | 0.51154 | 0.51753 |
-| [run-4](src/train_configs/run4.cfg) | 0.78760 | 0.86227 | 0.86870 | 0.87080 | 0.87120 |
-| [run-5](src/train_configs/run5.cfg) | **0.80200** | **0.87170** | **0.87743** | **0.87966** | **0.88002** |
+| [run-1](fine-tuning/train_configs/run1.cfg) | 0.69130 | 0.78962 | 0.80113 | 0.80517 | 0.80589 |
+| [run-2](fine-tuning/train_configs/run2.cfg) | 0.71200 | 0.80445 | 0.81519 | 0.81912 | 0.81968 |
+| [run-3](fine-tuning/train_configs/run3.cfg) | 0.34540 | 0.46338 | 0.49253 | 0.51154 | 0.51753 |
+| [run-4](fine-tuning/train_configs/run4.cfg) | 0.78760 | 0.86227 | 0.86870 | 0.87080 | 0.87120 |
+| [run-5](fine-tuning/train_configs/run5.cfg) | **0.80200** | **0.87170** | **0.87743** | **0.87966** | **0.88002** |
 
 
 ---
