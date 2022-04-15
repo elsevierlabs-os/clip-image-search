@@ -165,10 +165,11 @@ The Image Search demo is located on a standalone CPU-only box since we are only 
 ### Vespa
 
   * Docker -- [instructions](https://docs.docker.com/engine/install/ubuntu/)
-  * Vespa -- [instructions](https://docs.vespa.ai/en/vespa*quick*start.html)
+  * Vespa -- [instructions](https://docs.vespa.ai/en/getting-started.html)
+    * **NOTE -- instructions below are very likely obsolete now that [vespa-cli](https://docs.vespa.ai/en/vespa-cli.html) is available.**
     * download [vespa-engine/sample-apps](https://github.com/vespa-engine/sample-apps)
     * create new app `clip-demo` as new app in `sample-apps`
-    * copy `vespa/src` folder to `sample-apps/clip-demo`
+    * copy `image-search/vespa/src` folder to `sample-apps/clip-demo`
     * download [sujitpal/vespa-poc](https://github.com/sujitpal/vespa-poc)
     * update scripts in `bash-scripts` to point to `clip-demo` sample app
     * `launch.sh` to start docker instance
