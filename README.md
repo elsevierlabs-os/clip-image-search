@@ -1,6 +1,8 @@
 # clip-image-search
 
-Fine-tuning OpenAI CLIP Model for Image Search on medical images
+Fine-tuning OpenAI CLIP Model for Image Search on medical images.
+
+_**PLEASE NOTE**: The code in this repository is being provided as-is without any warranty of any kind. While efforts have been made to ensure that the instructions are accurate, some of the underlying software libraries move on a fast update cycle and may have changed, and as a result the code may neither be installable or executable. It is being provided for study purposes only._
 
 * [Motivation](#motivation)
 * [Applications](#applications)
